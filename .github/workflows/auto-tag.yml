@@ -1,25 +1,22 @@
-name: Auto Tag Repo B
+name: Auto Tag
 
 on:
   push:
     branches:
-      - main      # fires on every push to main, no path filter
+      - main
 
 jobs:
   tag:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo B
+      - name: Checkout repo A
         uses: actions/checkout@v4
         with:
-          repository: YOUR_GITHUB_USERNAME/batsirai-api
-          token: ${{ secrets.REPO_B_PAT }}
-          path: repo-b
-          ref: master
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create auto-incremented tag
         run: |
-          cd repo-b
           git fetch --tags
 
           LATEST_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
@@ -42,5 +39,4 @@ jobs:
 
       - name: Summary
         run: |
-          echo "### 🏷 Repo B tagged" >> $GITHUB_STEP_SUMMARY
-          echo "Packagist notified" >> $GITHUB_STEP_SUMMARY
+          echo "### 🏷 Tagged" >> $GITHUB_STEP_SUMMARY
