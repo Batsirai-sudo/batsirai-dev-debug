@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write   # ← allows pushing tags
+
 jobs:
   tag:
     runs-on: ubuntu-latest
@@ -33,6 +36,9 @@ jobs:
 
           echo "Previous tag: ${LATEST_TAG:-none}"
           echo "New tag:      $NEW_TAG"
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git tag "$NEW_TAG"
           git push origin "$NEW_TAG"
