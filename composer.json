@@ -2,6 +2,7 @@
   "name": "batsirai/dev-debug",
   "description": "Send PHP debug data to DevDebug macOS app and dump data",
   "type": "library",
+  "version": "1.0.4",
   "license": "MIT",
   "minimum-stability": "stable",
   "autoload": {

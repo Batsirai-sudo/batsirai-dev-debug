@@ -27,7 +27,7 @@ table_row() {
   local status="$2"
   local detail="$3"
 
-  printf "│ %-20s │ %-25s │ %-55s │\n" "$label" "$status" "$detail"
+  printf "│ %-20s │ %-35s │ %-55s │\n" "$label" "$status" "$detail"
 }
 
 table_header() {
@@ -52,16 +52,8 @@ show_status() {
   if composer global show "$PACKAGE" >/dev/null 2>&1; then
     local version=$(composer global show "$PACKAGE" 2>/dev/null | awk '/versions/ {print $NF}')
     table_row "Package" "$(echo -e "${GREEN}✓ Installed${NC}")" "$PACKAGE $version"
-
-#    local repo_config=$(composer global config repositories.$REPO_NAME 2>/dev/null)
-#    if [[ -n "$repo_config" ]]; then
-#      table_row "Repository" "$(echo -e "${GREEN}✓ Configured${NC}")" "$REPO_NAME"
-#    else
-#      table_row "Repository" "$(echo -e "${YELLOW}⚠ Missing${NC}")" "Not configured"
-#    fi
   else
     table_row "Package" "$(echo -e "${RED}✗ Not Installed${NC}")" "Run: dev-debug -i"
-#    table_row "Repository" "$(echo -e "${DIM}— N/A${NC}")" ""
   fi
 
   # ============================================================
@@ -109,13 +101,73 @@ show_status() {
     table_row "Loader File" "$(echo -e "${DIM}— N/A${NC}")" ""
   fi
 
-  # Check for conflicts
-  local conflicts=$(grep -r "auto_prepend_file" "$PHP_INI_DIR" 2>/dev/null | grep -v "$PHP_INI_FILE" | wc -l | xargs)
-  if [[ "$conflicts" -gt 0 ]]; then
-    table_row "Config Conflicts" "$(echo -e "${YELLOW}⚠ Found${NC}")" "$conflicts potential conflict(s)"
+
+# Show value inside your loader file
+if [[ -f "$PHP_INI_FILE" ]]; then
+  local main_value=$(grep "auto_prepend_file" "$PHP_INI_FILE" 2>/dev/null | cut -d'=' -f2 | tr -d ' "')
+
+  if [[ -z "$main_value" ]]; then
+    main_display="(empty)"
   else
-    table_row "Config Conflicts" "$(echo -e "${GREEN}✓ None${NC}")" ""
+    main_display="$main_value"
   fi
+
+  table_row "Loader Value" "$(echo -e "${CYAN}Main${NC}")" "$main_display"
+fi
+
+
+  # ============================================================
+  # AUTO_PREPEND_FILE DETAILS
+  # ============================================================
+
+  local conflict_count=0
+
+  # Get all matches except the main loader file
+  local matches=$(grep -r "auto_prepend_file" "$PHP_INI_DIR" 2>/dev/null | grep -v "$PHP_INI_FILE")
+
+  if [[ -n "$matches" ]]; then
+    echo "$matches" | while IFS=: read -r file line; do
+      local value=$(echo "$line" | cut -d'=' -f2 | tr -d ' "' )
+
+      # Normalize empty
+      if [[ -z "$value" ]]; then
+        display_value="( empty )"
+      else
+        display_value="$value"
+        ((conflict_count++))
+      fi
+
+      table_row "auto_prepend_file" "$display_value"  "$file"
+    done
+  fi
+
+
+
+
+# Count only NON-empty values (excluding main file)
+local conflicts=$(grep -r "auto_prepend_file" "$PHP_INI_DIR" 2>/dev/null \
+  | grep -v "$PHP_INI_FILE" \
+  | awk -F'=' '{gsub(/[ "]/,"",$2); if ($2 != "") print}' \
+  | wc -l | xargs)
+
+if [[ "$conflicts" -gt 0 ]]; then
+  table_row "Config Conflicts" "$(echo -e "${YELLOW}⚠ Found${NC}")" "$conflicts conflict(s) with value"
+else
+  table_row "Config Conflicts" "$(echo -e "${GREEN}✓ None${NC}")" ""
+fi
+
+
+
+
+
+
+#  # Check for conflicts
+#  local conflicts=$(grep -r "auto_prepend_file" "$PHP_INI_DIR" 2>/dev/null | grep -v "$PHP_INI_FILE" | wc -l | xargs)
+#  if [[ "$conflicts" -gt 0 ]]; then
+#    table_row "Config Conflicts" "$(echo -e "${YELLOW}⚠ Found${NC}")" "$conflicts potential conflict(s)"
+#  else
+#    table_row "Config Conflicts" "$(echo -e "${GREEN}✓ None${NC}")" ""
+#  fi
 
   # ============================================================
   # LOCAL WORDPRESS SITES SECTION

@@ -3,29 +3,6 @@
 install() {
   heading "Installation"
 
-#  # Composer package
-#  step "Checking Composer package"
-#
-#  if is_package_installed; then
-#    ok "Composer package already installed"
-#  else
-##    add "Installing Composer package: $PACKAGE"
-##    indent "Repository: $PACKAGE_PATH"
-##    indent "Branch: $PACKAGE_BRANCH"
-#
-##    composer global config repositories.$REPO_NAME path "$PACKAGE_PATH" >/dev/null 2>&1
-##    composer global require "$PACKAGE:$PACKAGE_BRANCH" >/dev/null 2>&1
-#
-#    if is_package_installed; then
-#      ok "Composer package installed successfully"
-#    else
-#      error "Failed to install Composer package"
-#      return 1
-#    fi
-#  fi
-
-#  echo ""
-
   # PHP loader
   step "Checking PHP loader"
 
@@ -98,22 +75,13 @@ uninstall() {
 
   echo ""
 
-  step "Removing Composer package"
-  composer global remove "$PACKAGE" 2>/dev/null && ok "Package removed" || info "Package not found"
-  composer global config --unset repositories.$REPO_NAME 2>/dev/null
-
-  echo ""
-
-
   # MU-Plugin uninstall
   if [[ "$(uname)" == "Darwin" ]]; then
     step "Checking Local WordPress mu-plugins"
 
-    if confirm "Remove mu-plugin from Local WordPress sites?" "n"; then
-      uninstall_mu_plugin
-    else
-      info "Skipping mu-plugin removal"
-    fi
+    uninstall_mu_plugin
+
+    info "Removed mu-plugin from Local WordPress sites?"
 
     echo ""
   fi
