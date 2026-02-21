@@ -156,19 +156,6 @@ else
   table_row "Config Conflicts" "$(echo -e "${GREEN}✓ None${NC}")" ""
 fi
 
-
-
-
-
-
-#  # Check for conflicts
-#  local conflicts=$(grep -r "auto_prepend_file" "$PHP_INI_DIR" 2>/dev/null | grep -v "$PHP_INI_FILE" | wc -l | xargs)
-#  if [[ "$conflicts" -gt 0 ]]; then
-#    table_row "Config Conflicts" "$(echo -e "${YELLOW}⚠ Found${NC}")" "$conflicts potential conflict(s)"
-#  else
-#    table_row "Config Conflicts" "$(echo -e "${GREEN}✓ None${NC}")" ""
-#  fi
-
   # ============================================================
   # LOCAL WORDPRESS SITES SECTION
   # ============================================================

@@ -11,6 +11,6 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 LOADER_PATH="$ROOT_DIR/global-dev-debug-loader.php"
 
-DMG_PATH="$PACKAGE_PATH/app/DevDebug.dmg"
+DMG_PATH="$PACKAGE_PATH/app/DevDebug-1.1.dmg"
 APP_INSTALL_DIR="/Applications"
 APP_NAME="DevDebug.app"

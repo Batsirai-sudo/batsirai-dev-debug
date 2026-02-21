@@ -1,0 +1,140 @@
+name: Deploy Release to API Repo
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/*.dmg'
+      - 'app/*.xml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo A
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Find DMG and appcast ──────────────────────────────────────────────
+      - name: Find DMG and appcast files
+        id: files
+        run: |
+          DMG_FILE=$(find app/ -name "*.dmg" | head -1)
+          XML_FILE=$(find app/ -name "appcast.xml" | head -1)
+
+          if [ -z "$DMG_FILE" ]; then
+            echo "No DMG found in app/ — skipping"
+            exit 1
+          fi
+
+          DMG_BASENAME=$(basename "$DMG_FILE")
+          VERSION=$(echo "$DMG_BASENAME" | sed 's/DevDebug-//;s/\.dmg//')
+
+          echo "dmg_file=$DMG_FILE"         >> $GITHUB_OUTPUT
+          echo "xml_file=$XML_FILE"         >> $GITHUB_OUTPUT
+          echo "dmg_basename=$DMG_BASENAME" >> $GITHUB_OUTPUT
+          echo "version=$VERSION"           >> $GITHUB_OUTPUT
+          echo "Detected DMG version: $VERSION"
+
+      # ── Checkout repo B ───────────────────────────────────────────────────
+      - name: Checkout repo B
+        uses: actions/checkout@v4
+        with:
+          repository: YOUR_GITHUB_USERNAME/batsirai-api
+          token: ${{ secrets.API_REPO_ACCESS_PAT }}
+          path: repo-b
+          ref: master
+
+      # ── Version check — only gates file copy, NOT tagging ─────────────────
+      - name: Check if DMG version already exists in repo B
+        id: version_check
+        run: |
+          VERSION="${{ steps.files.outputs.version }}"
+          DMG_DEST="repo-b/public/uploads/dev-debug/mac-app/releases/$VERSION"
+
+          if [ -d "$DMG_DEST" ]; then
+            echo "DMG version $VERSION already deployed — skipping file copy"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "DMG version $VERSION is new — will copy files"
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      # ── Copy files (skipped if same version) ─────────────────────────────
+      - name: Copy DMG and appcast to repo B
+        if: steps.version_check.outputs.skip == 'false'
+        run: |
+          VERSION="${{ steps.files.outputs.version }}"
+          DMG_BASENAME="${{ steps.files.outputs.dmg_basename }}"
+          DMG_FILE="${{ steps.files.outputs.dmg_file }}"
+          XML_FILE="${{ steps.files.outputs.xml_file }}"
+
+          DMG_DEST="repo-b/public/uploads/dev-debug/mac-app/releases/$VERSION"
+          mkdir -p "$DMG_DEST"
+          cp "$DMG_FILE" "$DMG_DEST/$DMG_BASENAME"
+          echo "Copied DMG to $DMG_DEST/$DMG_BASENAME"
+
+          if [ -n "$XML_FILE" ] && [ -f "$XML_FILE" ]; then
+            APPCAST_DEST="repo-b/public/uploads/dev-debug/mac-app"
+            mkdir -p "$APPCAST_DEST"
+            cp "$XML_FILE" "$APPCAST_DEST/appcast.xml"
+            echo "Replaced appcast.xml"
+          fi
+
+      # ── Commit and push repo B (skipped if same version) ─────────────────
+      - name: Commit and push to repo B
+        if: steps.version_check.outputs.skip == 'false'
+        run: |
+          cd repo-b
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/uploads/dev-debug/mac-app/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "release: DevDebug v${{ steps.files.outputs.version }}"
+            git push origin master
+          fi
+
+      # ── Auto-increment tag — ALWAYS runs, independent of version check ────
+      - name: Create auto-incremented tag on repo B
+        run: |
+          cd repo-b
+          git fetch --tags
+
+          LATEST_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+
+          if [ -z "$LATEST_TAG" ]; then
+            NEW_TAG="v1.0.0"
+          else
+            TAG_VERSION="${LATEST_TAG#v}"
+            MAJOR=$(echo "$TAG_VERSION" | cut -d. -f1)
+            MINOR=$(echo "$TAG_VERSION" | cut -d. -f2)
+            PATCH=$(echo "$TAG_VERSION" | cut -d. -f3)
+            NEW_TAG="v${MAJOR}.${MINOR}.$((PATCH + 1))"
+          fi
+
+          echo "Previous tag: ${LATEST_TAG:-none}"
+          echo "New tag:      $NEW_TAG"
+
+          git tag "$NEW_TAG"
+          git push origin "$NEW_TAG"
+
+      # ── Summary ───────────────────────────────────────────────────────────
+      - name: Summary
+        run: |
+          SKIPPED="${{ steps.version_check.outputs.skip }}"
+          VERSION="${{ steps.files.outputs.version }}"
+          if [ "$SKIPPED" == "true" ]; then
+            echo "### ✅ Push processed" >> $GITHUB_STEP_SUMMARY
+            echo "- ⏭ DMG v$VERSION already in repo B — file copy skipped" >> $GITHUB_STEP_SUMMARY
+            echo "- 🏷 Repo B tagged (patch incremented)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ✅ DevDebug v$VERSION deployed" >> $GITHUB_STEP_SUMMARY
+            echo "- DMG → \`releases/$VERSION/\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`appcast.xml\` updated" >> $GITHUB_STEP_SUMMARY
+            echo "- 🏷 Repo B tagged → Packagist notified" >> $GITHUB_STEP_SUMMARY
+          fi

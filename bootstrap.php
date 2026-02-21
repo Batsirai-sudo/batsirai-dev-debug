@@ -11,8 +11,8 @@ if ( ! function_exists('dev_debug') ) {
 		}
 }
 
-if ( ! function_exists('dd') ) {
-		function dd( mixed $value, array $context = [] ): void
+if ( ! function_exists('dg') ) {
+		function dg( mixed $value, array $context = [] ): void
 		{
 				Debug::send( $value, $context );
 		}

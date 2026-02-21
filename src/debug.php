@@ -3,31 +3,44 @@
 namespace DevDebug;
 
 final class Debug {
-
 		public static function send( mixed $value, array $context = [] ): void {
-				$trace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 2 )[ 1 ] ?? [];
+				// Get more frames (skip args for performance)
+				$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-				$file = $trace[ 'file' ] ?? 'unknown';
-				$line = $trace[ 'line' ] ?? 0;
+				// First caller (same as your current behavior)
+				$caller = $trace[1] ?? [];
+
+				$file = $caller['file'] ?? 'unknown';
+				$line = $caller['line'] ?? 0;
+
 				$language = $context['type'] ?? 'PHP';
 				$label = $context['label'] ?? 'PHP';
 
+				// Build simplified backtrace
+				$backtrace = array_map(function ($frame) {
+						return [
+								'file'     => $frame['file'] ?? 'unknown',
+								'line'     => $frame['line'] ?? 0,
+								'function' => $frame['function'] ?? 'unknown',
+						];
+				}, array_slice($trace, 1)); // skip current function
+
 				$event = [
-						'id'           => bin2hex( random_bytes( 8 ) ),
-						'time'         => date( 'H:i:s' ),
-						'sourceName'   => basename( $file ),
+						'id'           => bin2hex(random_bytes(8)),
+						'time'         => date('H:i:s'),
+						'sourceName'   => basename($file),
 						'lineNumber'   => $line,
-						'label'   => $label,
+						'label'        => $label,
 						'pathToSource' => $file,
+						'backtrace'    => $backtrace,
 						'payload'      => [
 								'language' => $language,
-								'value'    => self::normalize( $value ),
+								'value'    => self::normalize($value),
 						],
 				];
 
-				Client::send( $event );
+				Client::send($event);
 		}
-
 		private static function normalize( mixed $value ): mixed {
 				if ( is_array( $value ) ) {
 						return array_map( [ self::class, 'normalize' ], $value );

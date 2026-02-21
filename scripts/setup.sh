@@ -42,7 +42,7 @@ install() {
     else
       add "Installing $APP_NAME"
 
-      if install_dmg; then
+      if install_swift_dmg; then
         ok "$APP_NAME installed successfully"
       else
         warn "App installation had issues"
@@ -87,7 +87,7 @@ uninstall() {
   fi
 
   step "Removing macOS app"
-  uninstall_dmg
+  uninstall_swift_dmg
 
   success "Uninstallation complete!"
 }

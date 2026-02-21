@@ -17,9 +17,11 @@ source "$BASE_DIR/scripts/utils.sh"
 source "$BASE_DIR/scripts/php-loader.sh"
 source "$BASE_DIR/scripts/mu-plugin.sh"
 source "$BASE_DIR/scripts/setup.sh"
-source "$BASE_DIR/scripts/dmg.sh"
+source "$BASE_DIR/scripts/swift-app/install.sh"
+source "$BASE_DIR/scripts/swift-app/release.sh"
 source "$BASE_DIR/scripts/status.sh"
 source "$BASE_DIR/scripts/prompt.sh"
+source "$BASE_DIR/scripts/test-debug-app.sh"
 
 # Show usage
 show_usage() {
@@ -60,6 +62,8 @@ case "$1" in
   --mu-install)      install_mu_plugin; exit 0 ;;
   --mu-uninstall)    uninstall_mu_plugin; exit 0 ;;
   --status)          show_status; exit 0 ;;
+  --test)            run_app_debug_test; exit 0 ;;
+  --release)         release_dev_debug_app; exit 0 ;;
   -h|--help)         show_usage; exit 0 ;;
   "")                prompt_user ;;
   *)

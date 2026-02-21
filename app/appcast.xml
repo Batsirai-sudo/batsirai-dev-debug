@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>DevDebug</title>
+        <item>
+            <title>1.1</title>
+            <pubDate>Sun, 22 Feb 2026 00:41:03 +0200</pubDate>
+            <sparkle:version>2</sparkle:version>
+            <sparkle:shortVersionString>1.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.7</sparkle:minimumSystemVersion>
+            <enclosure url="https://api.batsirai.dev/uploads/dev-debug/mac-app/releases/1.1/DevDebug-1.1.dmg" length="23904893" type="application/octet-stream" sparkle:edSignature="OV8JPknaXdd4v24Z60nPH6MfjagEZAK4pI+YvJQnEImDrAe8UXz0HPUa06edbjE/KGiaYvJxP1dGAGwmOV9gDQ=="/>
+        </item>
+    </channel>
+</rss>
