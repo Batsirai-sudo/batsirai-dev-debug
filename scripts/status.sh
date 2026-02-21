@@ -53,15 +53,15 @@ show_status() {
     local version=$(composer global show "$PACKAGE" 2>/dev/null | awk '/versions/ {print $NF}')
     table_row "Package" "$(echo -e "${GREEN}✓ Installed${NC}")" "$PACKAGE $version"
 
-    local repo_config=$(composer global config repositories.$REPO_NAME 2>/dev/null)
-    if [[ -n "$repo_config" ]]; then
-      table_row "Repository" "$(echo -e "${GREEN}✓ Configured${NC}")" "$REPO_NAME"
-    else
-      table_row "Repository" "$(echo -e "${YELLOW}⚠ Missing${NC}")" "Not configured"
-    fi
+#    local repo_config=$(composer global config repositories.$REPO_NAME 2>/dev/null)
+#    if [[ -n "$repo_config" ]]; then
+#      table_row "Repository" "$(echo -e "${GREEN}✓ Configured${NC}")" "$REPO_NAME"
+#    else
+#      table_row "Repository" "$(echo -e "${YELLOW}⚠ Missing${NC}")" "Not configured"
+#    fi
   else
-    table_row "Package" "$(echo -e "${RED}✗ Not Installed${NC}")" "Run: ./setup.sh -i"
-    table_row "Repository" "$(echo -e "${DIM}— N/A${NC}")" ""
+    table_row "Package" "$(echo -e "${RED}✗ Not Installed${NC}")" "Run: dev-debug -i"
+#    table_row "Repository" "$(echo -e "${DIM}— N/A${NC}")" ""
   fi
 
   # ============================================================
@@ -105,7 +105,7 @@ show_status() {
       table_row "Loader File" "$(echo -e "${RED}✗ Missing${NC}")" "$prepend_value"
     fi
   else
-    table_row "Loader Config" "$(echo -e "${RED}✗ Not Found${NC}")" "Run: ./setup.sh -i"
+    table_row "Loader Config" "$(echo -e "${RED}✗ Not Found${NC}")" "Run: dev-debug -i"
     table_row "Loader File" "$(echo -e "${DIM}— N/A${NC}")" ""
   fi
 
@@ -146,7 +146,7 @@ show_status() {
     fi
 
     if [[ $not_installed_count -gt 0 ]]; then
-      table_row "Not Installed" "$(echo -e "${YELLOW}⚠ $not_installed_count site(s)${NC}")" "Run: ./setup.sh --mu-install"
+      table_row "Not Installed" "$(echo -e "${YELLOW}⚠ $not_installed_count site(s)${NC}")" "Run: dev-debug --mu-install"
     fi
 
   else
@@ -181,7 +181,7 @@ show_status() {
         table_row "App Status" "$(echo -e "${DIM}— Stopped${NC}")" "Not currently running"
       fi
     else
-      table_row "App Installed" "$(echo -e "${RED}✗ Not Installed${NC}")" "Run: ./setup.sh -i"
+      table_row "App Installed" "$(echo -e "${RED}✗ Not Installed${NC}")" "Run: dev-debug -i"
       table_row "App Status" "$(echo -e "${DIM}— N/A${NC}")" ""
     fi
   fi
@@ -263,10 +263,10 @@ show_status() {
   # ============================================================
   echo -e "${BOLD}${BLUE}Quick Actions${NC}"
   echo ""
-  echo -e "  ${GREEN}►${NC} Install/Update:        ${BOLD}./setup.sh -i${NC}"
-  echo -e "  ${CYAN}►${NC} Manage MU-Plugins:     ${BOLD}./setup.sh --mu-install${NC}"
-  echo -e "  ${RED}►${NC} Full Uninstall:        ${BOLD}./setup.sh -u${NC}"
-  echo -e "  ${MAGENTA}►${NC} View This Status:      ${BOLD}./setup.sh --status${NC}"
+  echo -e "  ${GREEN}►${NC} Install/Update:        ${BOLD}dev-debug -i${NC}"
+  echo -e "  ${CYAN}►${NC} Manage MU-Plugins:     ${BOLD}dev-debug --mu-install${NC}"
+  echo -e "  ${RED}►${NC} Full Uninstall:        ${BOLD}dev-debug -u${NC}"
+  echo -e "  ${MAGENTA}►${NC} View This Status:      ${BOLD}dev-debug --status${NC}"
   echo ""
 }
 

@@ -195,10 +195,10 @@ reinstall() {
   fi
 
   # Install
-  TARGET_SCRIPT="$SCRIPT_DIR/setup.sh"
+  TARGET_SCRIPT="$SCRIPT_DIR/dev-debug.sh"
 
   if [ ! -f "$TARGET_SCRIPT" ]; then
-    echo -e "${RED}✗${NC} Error: setup.sh not found"
+    echo -e "${RED}✗${NC} Error: dev-debug.sh not found"
     exit 1
   fi
 

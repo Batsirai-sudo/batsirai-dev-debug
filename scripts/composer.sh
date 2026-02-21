@@ -3,28 +3,28 @@
 install() {
   heading "Installation"
 
-  # Composer package
-  step "Checking Composer package"
+#  # Composer package
+#  step "Checking Composer package"
+#
+#  if is_package_installed; then
+#    ok "Composer package already installed"
+#  else
+##    add "Installing Composer package: $PACKAGE"
+##    indent "Repository: $PACKAGE_PATH"
+##    indent "Branch: $PACKAGE_BRANCH"
+#
+##    composer global config repositories.$REPO_NAME path "$PACKAGE_PATH" >/dev/null 2>&1
+##    composer global require "$PACKAGE:$PACKAGE_BRANCH" >/dev/null 2>&1
+#
+#    if is_package_installed; then
+#      ok "Composer package installed successfully"
+#    else
+#      error "Failed to install Composer package"
+#      return 1
+#    fi
+#  fi
 
-  if is_package_installed; then
-    ok "Composer package already installed"
-  else
-    add "Installing Composer package: $PACKAGE"
-    indent "Repository: $PACKAGE_PATH"
-    indent "Branch: $PACKAGE_BRANCH"
-
-    composer global config repositories.$REPO_NAME path "$PACKAGE_PATH" >/dev/null 2>&1
-    composer global require "$PACKAGE:$PACKAGE_BRANCH" >/dev/null 2>&1
-
-    if is_package_installed; then
-      ok "Composer package installed successfully"
-    else
-      error "Failed to install Composer package"
-      return 1
-    fi
-  fi
-
-  echo ""
+#  echo ""
 
   # PHP loader
   step "Checking PHP loader"
