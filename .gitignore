@@ -4,4 +4,4 @@ vendor/
 deleted/
 build/
 .idea/
-
+commit-push.sh

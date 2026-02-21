@@ -1,0 +1,46 @@
+name: Auto Tag Repo B
+
+on:
+  push:
+    branches:
+      - main      # fires on every push to main, no path filter
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo B
+        uses: actions/checkout@v4
+        with:
+          repository: YOUR_GITHUB_USERNAME/batsirai-api
+          token: ${{ secrets.REPO_B_PAT }}
+          path: repo-b
+          ref: master
+
+      - name: Create auto-incremented tag
+        run: |
+          cd repo-b
+          git fetch --tags
+
+          LATEST_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+
+          if [ -z "$LATEST_TAG" ]; then
+            NEW_TAG="v1.0.0"
+          else
+            TAG_VERSION="${LATEST_TAG#v}"
+            MAJOR=$(echo "$TAG_VERSION" | cut -d. -f1)
+            MINOR=$(echo "$TAG_VERSION" | cut -d. -f2)
+            PATCH=$(echo "$TAG_VERSION" | cut -d. -f3)
+            NEW_TAG="v${MAJOR}.${MINOR}.$((PATCH + 1))"
+          fi
+
+          echo "Previous tag: ${LATEST_TAG:-none}"
+          echo "New tag:      $NEW_TAG"
+
+          git tag "$NEW_TAG"
+          git push origin "$NEW_TAG"
+
+      - name: Summary
+        run: |
+          echo "### 🏷 Repo B tagged" >> $GITHUB_STEP_SUMMARY
+          echo "Packagist notified" >> $GITHUB_STEP_SUMMARY

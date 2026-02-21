@@ -44,11 +44,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Batsirai-sudo/batsirai-api
-          token: ${{ secrets.API_REPO_ACCESS_PAT }}
+          token: ${{ secrets.REPO_B_PAT }}
           path: repo-b
           ref: master
 
-      # ── Version check  — only gates file copy, NOT tagging ─────────────────
+      # ── Version check — only gates file copy, NOT tagging ─────────────────
       - name: Check if DMG version already exists in repo B
         id: version_check
         run: |
@@ -98,30 +98,6 @@ jobs:
             git commit -m "release: DevDebug v${{ steps.files.outputs.version }}"
             git push origin master
           fi
-
-      # ── Auto-increment tag — ALWAYS runs, independent of version check ────
-      - name: Create auto-incremented tag on repo B
-        run: |
-          cd repo-b
-          git fetch --tags
-
-          LATEST_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
-
-          if [ -z "$LATEST_TAG" ]; then
-            NEW_TAG="v1.0.0"
-          else
-            TAG_VERSION="${LATEST_TAG#v}"
-            MAJOR=$(echo "$TAG_VERSION" | cut -d. -f1)
-            MINOR=$(echo "$TAG_VERSION" | cut -d. -f2)
-            PATCH=$(echo "$TAG_VERSION" | cut -d. -f3)
-            NEW_TAG="v${MAJOR}.${MINOR}.$((PATCH + 1))"
-          fi
-
-          echo "Previous tag: ${LATEST_TAG:-none}"
-          echo "New tag:      $NEW_TAG"
-
-          git tag "$NEW_TAG"
-          git push origin "$NEW_TAG"
 
       # ── Summary ───────────────────────────────────────────────────────────
       - name: Summary
