@@ -43,12 +43,12 @@ jobs:
       - name: Checkout repo B
         uses: actions/checkout@v4
         with:
-          repository: YOUR_GITHUB_USERNAME/batsirai-api
+          repository: Batsirai-sudo/batsirai-api
           token: ${{ secrets.API_REPO_ACCESS_PAT }}
           path: repo-b
           ref: master
 
-      # ── Version check — only gates file copy, NOT tagging ─────────────────
+      # ── Version check  — only gates file copy, NOT tagging ─────────────────
       - name: Check if DMG version already exists in repo B
         id: version_check
         run: |
