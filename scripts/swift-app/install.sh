@@ -1,10 +1,36 @@
 #!/usr/bin/env bash
 
+find_latest_dmg() {
+  local dir="$PACKAGE_PATH/app"
+  # Sort by version number descending, pick the first match
+  find "$dir" -maxdepth 1 -name "*.dmg" 2>/dev/null \
+    | sort -t- -k2 -V -r \
+    | head -1
+}
+
 install_swift_dmg() {
-  [[ ! -f "$DMG_PATH" ]] && {
-    warn "DMG not found at: $DMG_PATH"
-    return 1
-  }
+   local DMG_PATH
+    DMG_PATH=$(find_latest_dmg)
+
+    [[ -z "$DMG_PATH" ]] && {
+      warn "No DMG found in: $PACKAGE_PATH/app"
+      return 1
+    }
+
+    [[ ! -f "$DMG_PATH" ]] && {
+      warn "DMG not found at: $DMG_PATH"
+      return 1
+    }
+
+
+
+
+
+
+#  [[ ! -f "$DMG_PATH" ]] && {
+#    warn "DMG not found at: $DMG_PATH"
+#    return 1
+#  }
 
   subheading "Installing macOS Application"
   indent "DMG: ${DIM}$DMG_PATH${NC}"
