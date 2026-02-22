@@ -45,7 +45,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Batsirai-sudo/batsirai-api
-          token: ${{ secrets.REPO_B_PAT }}
+          token: ${{ secrets.API_REPO_ACCESS_PAT }}
           path: repo-b
           ref: master
 
