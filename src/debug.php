@@ -9,6 +9,7 @@ final class Debug {
 
 				// First caller (same as your current behavior)
 				$caller = $trace[1] ?? [];
+				$callerFunc = $trace[2]['function'] ?? null; // the function that *called* send()
 
 				$file = $caller['file'] ?? 'unknown';
 				$line = $caller['line'] ?? 0;
@@ -17,13 +18,11 @@ final class Debug {
 				$label = $context['label'] ?? 'PHP';
 
 				// Build simplified backtrace
-				$backtrace = array_map(function ($frame) {
-						return [
-								'file'     => $frame['file'] ?? 'unknown',
-								'line'     => $frame['line'] ?? 0,
-								'function' => $frame['function'] ?? 'unknown',
-						];
-				}, array_slice($trace, 1)); // skip current function
+				$backtrace = array_map(fn($frame) => [
+						'file'     => $frame['file']     ?? 'unknown',
+						'line'     => $frame['line']     ?? 0,
+						'function' => $frame['function'] ?? 'unknown',
+				], array_slice($trace, 2));
 
 				$event = [
 						'id'           => bin2hex(random_bytes(8)),
@@ -32,6 +31,7 @@ final class Debug {
 						'lineNumber'   => $line,
 						'label'        => $label,
 						'pathToSource' => $file,
+						'callerFunction' => $callerFunc,   // ← new dedicated field
 						'backtrace'    => $backtrace,
 						'payload'      => [
 								'language' => $language,
