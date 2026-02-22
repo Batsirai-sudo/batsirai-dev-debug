@@ -17,7 +17,7 @@ error() { echo -e "${RED}✗ $1${NC}"; exit 1; }
 
 # ── Config ────────────────────────────────────────────────────────────────────
 DESKTOP="$HOME/Desktop"
-APP_NAME="DevDebug"
+APP_BUNDLE_NAME="DevDebug"
 
 # Auto-discover generate_appcast from DerivedData
 SPARKLE_GENERATE_APPCAST=$(find "$HOME/Library/Developer/Xcode/DerivedData" \
@@ -31,10 +31,10 @@ echo -e "${BOLD}║     DevDebug Release Builder     ║${NC}"
 echo -e "${BOLD}╚══════════════════════════════════╝${NC}"
 echo ""
 
-APP_PATH="$DESKTOP/DevDebug/$APP_NAME.app"
+APP_PATH="$DESKTOP/DevDebug/$APP_BUNDLE_NAME.app"
 
-if [ -z "$APP_PATH" ]; then
-  error "Could not find $APP_NAME.app inside $EXPORT_FOLDER"
+if [ ! -d "$APP_PATH" ]; then
+  error "Could not find $APP_BUNDLE_NAME.app inside $EXPORT_FOLDER"
 fi
 
 log "Found export folder: $(basename "$EXPORT_FOLDER")"
@@ -75,14 +75,14 @@ else
 fi
 
 # ── Deep sign the app ─────────────────────────────────────────────────────────
-log "Deep signing $APP_NAME.app..."
+log "Deep signing $APP_BUNDLE_NAME.app..."
 codesign --force --deep --sign - "$APP_PATH"
 ok "App signed"
 
 # ── Create DMG ────────────────────────────────────────────────────────────────
 log "Creating DMG..."
 hdiutil create \
-  -volname "$APP_NAME" \
+  -volname "$APP_BUNDLE_NAME" \
   -srcfolder "$APP_PATH" \
   -ov \
   -format UDZO \

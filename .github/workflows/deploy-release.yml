@@ -8,7 +8,7 @@ on:
       - 'app/*.dmg'
       - 'app/*.xml'
   workflow_dispatch:
-
+# TODO push to main in repo B and dependebot does the deployment to master
 jobs:
   deploy:
     runs-on: ubuntu-latest
