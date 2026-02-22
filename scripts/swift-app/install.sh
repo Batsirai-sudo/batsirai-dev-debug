@@ -12,7 +12,6 @@ install_swift_dmg() {
   echo ""
 
   step "Mounting DMG"
-#  MOUNT_POINT=$(hdiutil attach "$DMG_PATH" -nobrowse 2>/dev/null | awk '/\/Volumes\// {print $NF; exit}')
 MOUNT_POINT=$(hdiutil attach "$DMG_PATH" -nobrowse 2>/dev/null \
   | awk 'BEGIN{FS="\t"} /\/Volumes\// {print $NF; exit}')
   if [[ -z "$MOUNT_POINT" ]]; then
